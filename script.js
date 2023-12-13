@@ -27,11 +27,18 @@ let saveItem=(e)=>{
     let item=e.parentElement.firstElementChild.getAttribute("src");
     if(!data.includes(item) && item!==null){
         data.push(item);
+        data2.push(1);
     }
     if(data.length===0){
         localStorage.removeItem("item");
     }else{
         localStorage.setItem("item",JSON.stringify(data));
+    }
+    
+    if(data2.length===0){
+        localStorage.removeItem("items");
+    }else{
+        localStorage.setItem("items",JSON.stringify(data2));
     }
 }
 
@@ -55,11 +62,12 @@ const addToCart=(text,val=1)=>{
     function(){
         const litem=JSON.parse(localStorage.getItem("item"));
         const lquant=JSON.parse(localStorage.getItem("items"));
-        if(litem!==null){
+        if(litem!==null && lquant!==null){
             litem.forEach(
                 (lsitem,i)=>{
-                    addToCart(lsitem,lquant[i+1]);
+                    addToCart(lsitem,lquant[i]);
                     data.push(lsitem);
+                    data2.push(lquant[i]);
                 }
             )
         }
@@ -72,7 +80,7 @@ $("#cart").on("click","#rem",function(){
     let tarImg=tarImgPar.querySelector("td img");
     const index=data.indexOf(tarImg.getAttribute("src"));
     data.splice(index,1);
-    data2.splice(index+1,1);
+    data2.splice(index,1);
     if(data.length===0){
         localStorage.removeItem("item");
     }else{
@@ -83,6 +91,7 @@ $("#cart").on("click","#rem",function(){
     }else{
         localStorage.setItem("items",JSON.stringify(data2));
     }
+    changeSub();
 });
 
 // sproduct-page save--------------------------------
@@ -130,7 +139,7 @@ const changeSub=()=>{
 const changeQuant=()=>{
     let lenInp=$("#cart tbody input").length;
     let rows=$("#cart tbody tr");
-    for(let i=0;i<lenInp;i++){
+    for(let i=1;i<lenInp;i++){
         data2.push(rows[i].querySelector("input").value);
     }
     console.log(data2);
