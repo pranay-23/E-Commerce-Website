@@ -15,6 +15,8 @@ const changeImg=(e)=>{
 // cart-functions--------------------------------
 
 const data=[];
+let data2=[];
+
 
 $(".fa-cart-shopping").click(function(){
     saveItem(this);
@@ -35,7 +37,7 @@ let saveItem=(e)=>{
 
 
 
-const addToCart=(text)=>{
+const addToCart=(text,val=1)=>{
     if(text!==""){
         const cart=$("#cart table tbody");
     const cartItem=document.createElement("tr");
@@ -43,7 +45,7 @@ const addToCart=(text)=>{
     <td><img src="${text}" alt=""></td>
     <td>Cartoon Astronaut T-Shirts</td>
     <td>$<span class="price">118</span></td>
-    <td><input type="number" value="1"></td>
+    <td><input type="number" value="${val}"></td>
     <td>$<span class="tot">118</span></td>`;
     cart.append(cartItem);
     }
@@ -51,17 +53,16 @@ const addToCart=(text)=>{
 
 (
     function(){
-        const lnotes=JSON.parse(localStorage.getItem("item"));
-
-        if(lnotes!==null){
-            lnotes.forEach(
-                (lsnote)=>{
-                    addToCart(lsnote);
-                    data.push(lsnote);
+        const litem=JSON.parse(localStorage.getItem("item"));
+        const lquant=JSON.parse(localStorage.getItem("items"));
+        if(litem!==null){
+            litem.forEach(
+                (lsitem,i)=>{
+                    addToCart(lsitem,lquant[i+1]);
+                    data.push(lsitem);
                 }
             )
         }
-        
     }
 )()
 
@@ -71,10 +72,16 @@ $("#cart").on("click","#rem",function(){
     let tarImg=tarImgPar.querySelector("td img");
     const index=data.indexOf(tarImg.getAttribute("src"));
     data.splice(index,1);
+    data2.splice(index+1,1);
     if(data.length===0){
         localStorage.removeItem("item");
     }else{
         localStorage.setItem("item",JSON.stringify(data));
+    }
+    if(data2.length===0){
+        localStorage.removeItem("items");
+    }else{
+        localStorage.setItem("items",JSON.stringify(data2));
     }
 });
 
@@ -95,9 +102,12 @@ $(".single-pro-details").on("click","button",function(){
 // total-cal--------------------------------
 
 $("#cart tbody input").on("change",function(){
+    data2=[];
     getTot(this);
     changeSub();
+    changeQuant();
 })
+
 
 const getTot=(e)=>{
     const itemVal=e.value;
@@ -117,5 +127,22 @@ const changeSub=()=>{
     $("#subtotal .subtot").text(subtot);
 }
 
+const changeQuant=()=>{
+    let lenInp=$("#cart tbody input").length;
+    let rows=$("#cart tbody tr");
+    for(let i=0;i<lenInp;i++){
+        data2.push(rows[i].querySelector("input").value);
+    }
+    console.log(data2);
+    if(data2.length===0){
+        localStorage.removeItem("items");
+    }else{
+        localStorage.setItem("items",JSON.stringify(data2));
+    }
+}
 
+const tinput=document.querySelectorAll("#cart tbody input");
+for(let j=0;j<tinput.length;j++){
+    getTot(tinput[j]);
+}
 changeSub();
